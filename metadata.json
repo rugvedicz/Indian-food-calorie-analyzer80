@@ -1,0 +1,5 @@
+{
+  "name": "AI Food Calorie Analyzer",
+  "description": "Premium AI-powered food calorie analyzer and nutrition assistant",
+  "requestFramePermissions": ["camera"]
+}
