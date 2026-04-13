@@ -1,18 +1,30 @@
 import { motion } from 'motion/react';
-import { Apple, LayoutDashboard, MessageSquare, Scan } from 'lucide-react';
+import { Apple, LayoutDashboard, MessageSquare, Scan, LogOut, User } from 'lucide-react';
+import { auth } from '../firebase';
+import { signOut, User as FirebaseUser } from 'firebase/auth';
 
 interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  user: FirebaseUser | null;
+  onLoginClick: () => void;
 }
 
-export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
+export default function Navbar({ activeTab, setActiveTab, user, onLoginClick }: NavbarProps) {
   const navItems = [
     { id: 'home', label: 'Home', icon: Apple },
     { id: 'analyzer', label: 'Analyzer', icon: Scan },
     { id: 'chatbot', label: 'Nutritionist', icon: MessageSquare },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error('Logout failed', err);
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full glass border-b border-light-gray/50 shadow-sm">
@@ -52,9 +64,30 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="btn-gradient px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95">
-              Get Started
-            </button>
+            {user ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 px-4 py-2 bg-light-gray/20 rounded-xl border border-light-gray/50">
+                  <User className="w-4 h-4 text-primary" />
+                  <span className="text-xs font-bold text-navy truncate max-w-[100px]">
+                    {user.displayName || user.email}
+                  </span>
+                </div>
+                <button 
+                  onClick={handleLogout}
+                  className="p-3 text-medium-gray hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                  title="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={onLoginClick}
+                className="btn-gradient px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95"
+              >
+                Login
+              </button>
+            )}
           </div>
         </div>
       </div>

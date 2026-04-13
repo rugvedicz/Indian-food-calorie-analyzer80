@@ -109,15 +109,6 @@ export default function DashboardCard({ currentCalories, targetCalories, history
             </div>
             <span className="text-xl font-black text-white">{remaining} kcal</span>
           </div>
-          <div className="p-4 rounded-2xl bg-primary-accent/10 flex items-center justify-between border border-primary-accent/20 hover:border-primary-accent/40 transition-all">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-primary-accent rounded-xl flex items-center justify-center shadow-md shadow-primary-accent/20">
-                <TrendingUp className="w-5 h-5 text-navy" />
-              </div>
-              <span className="text-sm font-bold text-navy">Efficiency</span>
-            </div>
-            <span className="text-sm font-black text-navy">Optimal</span>
-          </div>
         </div>
       </motion.div>
 

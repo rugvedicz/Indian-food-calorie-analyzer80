@@ -7,7 +7,10 @@ import UploadBox from './components/UploadBox';
 import ResultCard from './components/ResultCard';
 import ChatUI from './components/ChatUI';
 import DashboardCard from './components/DashboardCard';
+import AuthPage from './components/AuthPage';
 import { FoodResult, MealRecord } from './types';
+import { auth } from './firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 const DUMMY_RESULT: FoodResult = {
   name: "Avocado Toast with Egg",
@@ -25,21 +28,25 @@ const DUMMY_RESULT: FoodResult = {
   ]
 };
 
-const DUMMY_HISTORY: MealRecord[] = [
-  { id: '1', name: 'Greek Yogurt Bowl', calories: 320, time: '08:30 AM' },
-  { id: '2', name: 'Grilled Chicken Salad', calories: 540, time: '12:45 PM' },
-  { id: '3', name: 'Protein Shake', calories: 210, time: '04:15 PM' },
-];
-
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<FoodResult | null>(null);
   
   // Real state for tracking calories and meals
-  const [currentCalories, setCurrentCalories] = useState(1070);
+  const [currentCalories, setCurrentCalories] = useState(0);
   const [targetCalories, setTargetCalories] = useState(2000);
-  const [mealHistory, setMealHistory] = useState<MealRecord[]>(DUMMY_HISTORY);
+  const [mealHistory, setMealHistory] = useState<MealRecord[]>([]);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) setShowAuth(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleAnalyze = (image: string) => {
     console.log('Analyzing image:', image.substring(0, 50) + '...');
@@ -76,6 +83,10 @@ export default function App() {
   };
 
   const renderContent = () => {
+    if (showAuth) {
+      return <AuthPage onSuccess={() => setShowAuth(false)} onCancel={() => setShowAuth(false)} />;
+    }
+
     switch (activeTab) {
       case 'home':
         return (
@@ -144,7 +155,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-primary-light/20">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        user={user}
+        onLoginClick={() => setShowAuth(true)}
+      />
       
       <main>
         <AnimatePresence mode="wait">
